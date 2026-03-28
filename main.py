@@ -19,8 +19,13 @@ from stockmind.feature_engine import FeatureEngine
 from stockmind.forecast import DemandForecaster
 from stockmind.engine import PromotionEngine
 
-# Initialize FastAPI
-app = FastAPI(title="StockMind", version="0.1.0")
+# Initialize FastAPI - Disable auto docs to use /about instead
+app = FastAPI(
+    title="StockMind",
+    version="0.1.0",
+    docs_url=None,  # Disable /docs
+    redoc_url=None  # Disable /redoc
+)
 
 # Mount static files only if directory exists and has files
 static_dir = Path("static")
@@ -127,6 +132,19 @@ async def promotion_engine_page(request: Request):
         name="promotion_engine.html",
         context={
             "active_tab": "promotion",
+            "inventory_count": get_inventory_count()
+        }
+    )
+
+
+@app.get("/about", response_class=HTMLResponse)
+async def about_page(request: Request):
+    """About tab page"""
+    return templates.TemplateResponse(
+        request=request,
+        name="about.html",
+        context={
+            "active_tab": "about",
             "inventory_count": get_inventory_count()
         }
     )

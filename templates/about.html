@@ -1,0 +1,282 @@
+{% extends "base.html" %}
+
+{% block title %}About - StockMind{% endblock %}
+
+{% block content %}
+<div class="max-w-5xl mx-auto space-y-8">
+    <!-- Header -->
+    <div class="text-center">
+        <h1 class="text-3xl font-bold text-brand-slate mb-2">About StockMind</h1>
+        <p class="text-lg text-brand-gray">Inventory Markdown Recommendation Engine</p>
+    </div>
+
+    <!-- What is StockMind -->
+    <div class="bg-white rounded-lg shadow-sm border border-brand-beige p-8">
+        <h2 class="text-2xl font-semibold text-brand-slate mb-4">What is StockMind?</h2>
+        <p class="text-brand-gray leading-relaxed mb-4">
+            StockMind is an intelligent promotion recommendation engine that analyzes your inventory to identify
+            distressed SKUs and suggests optimal markdown strategies. It balances the need to move inventory
+            quickly while protecting profit margins.
+        </p>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
+            <div class="bg-brand-cream p-4 rounded-lg">
+                <div class="text-3xl mb-2">🎯</div>
+                <h3 class="font-semibold text-brand-slate mb-1">Smart Targeting</h3>
+                <p class="text-sm text-brand-gray">Identifies non-moving, aging, and at-risk inventory</p>
+            </div>
+            <div class="bg-brand-cream p-4 rounded-lg">
+                <div class="text-3xl mb-2">📊</div>
+                <h3 class="font-semibold text-brand-slate mb-1">Data-Driven</h3>
+                <p class="text-sm text-brand-gray">Uses sales velocity, storage costs, and decay risk</p>
+            </div>
+            <div class="bg-brand-cream p-4 rounded-lg">
+                <div class="text-3xl mb-2">💰</div>
+                <h3 class="font-semibold text-brand-slate mb-1">Margin Protection</h3>
+                <p class="text-sm text-brand-gray">Recommends minimum discount needed to move stock</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- How It Works -->
+    <div class="bg-white rounded-lg shadow-sm border border-brand-beige p-8">
+        <h2 class="text-2xl font-semibold text-brand-slate mb-6">How It Works</h2>
+
+        <!-- Process Flow -->
+        <div class="space-y-6">
+            <div class="flex items-start gap-4">
+                <div class="flex-shrink-0 w-10 h-10 bg-brand-coral text-white rounded-full flex items-center justify-center font-bold">1</div>
+                <div class="flex-1">
+                    <h3 class="font-semibold text-brand-slate mb-2">Distress Scoring</h3>
+                    <p class="text-brand-gray mb-3">Each SKU receives a distress score (0-1) based on 6 weighted factors:</p>
+                    <div class="grid grid-cols-2 gap-2 text-sm">
+                        <div class="flex items-center gap-2">
+                            <span class="w-2 h-2 bg-brand-coral rounded-full"></span>
+                            <span class="text-brand-gray"><strong>Non-Moving (25%):</strong> Days since last sale</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="w-2 h-2 bg-brand-coral rounded-full"></span>
+                            <span class="text-brand-gray"><strong>Overstock (20%):</strong> Days of cover vs threshold</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="w-2 h-2 bg-brand-coral rounded-full"></span>
+                            <span class="text-brand-gray"><strong>Aging (20%):</strong> Inventory age in days</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="w-2 h-2 bg-brand-coral rounded-full"></span>
+                            <span class="text-brand-gray"><strong>Decay (15%):</strong> Age vs shelf life ratio</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="w-2 h-2 bg-brand-coral rounded-full"></span>
+                            <span class="text-brand-gray"><strong>Storage (10%):</strong> Physical storage burden</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="w-2 h-2 bg-brand-coral rounded-full"></span>
+                            <span class="text-brand-gray"><strong>Demand Weak (10%):</strong> Recent velocity decline</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex items-start gap-4">
+                <div class="flex-shrink-0 w-10 h-10 bg-brand-coral text-white rounded-full flex items-center justify-center font-bold">2</div>
+                <div class="flex-1">
+                    <h3 class="font-semibold text-brand-slate mb-2">Baseline Forecast</h3>
+                    <p class="text-brand-gray">Estimates expected 30-day demand without promotion using weighted moving average of recent sales history.</p>
+                </div>
+            </div>
+
+            <div class="flex items-start gap-4">
+                <div class="flex-shrink-0 w-10 h-10 bg-brand-coral text-white rounded-full flex items-center justify-center font-bold">3</div>
+                <div class="flex-1">
+                    <h3 class="font-semibold text-brand-slate mb-2">Promotion Simulation</h3>
+                    <p class="text-brand-gray mb-3">For each distressed SKU, tests all discount levels and calculates:</p>
+                    <ul class="list-disc list-inside text-sm text-brand-gray space-y-1">
+                        <li>Expected units sold (baseline × uplift factor)</li>
+                        <li>Expected margin (discounted price - cost) × units</li>
+                        <li>Holding cost avoided (saved storage fees)</li>
+                        <li>Waste avoided (prevented decay/spoilage)</li>
+                        <li>Leftover penalty (remaining stock risk)</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="flex items-start gap-4">
+                <div class="flex-shrink-0 w-10 h-10 bg-brand-coral text-white rounded-full flex items-center justify-center font-bold">4</div>
+                <div class="flex-1">
+                    <h3 class="font-semibold text-brand-slate mb-2">Business Guard Rails</h3>
+                    <p class="text-brand-gray mb-3">Before recommending, applies safety checks:</p>
+                    <ul class="list-disc list-inside text-sm text-brand-gray space-y-1">
+                        <li>Skip SKUs below distress threshold</li>
+                        <li>Don't promote low-stock items</li>
+                        <li>Respect minimum margin floor</li>
+                        <li>Cap discount at 20%</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="flex items-start gap-4">
+                <div class="flex-shrink-0 w-10 h-10 bg-brand-coral text-white rounded-full flex items-center justify-center font-bold">5</div>
+                <div class="flex-1">
+                    <h3 class="font-semibold text-brand-slate mb-2">Final Recommendation</h3>
+                    <p class="text-brand-gray">Selects the discount level with the highest action score (maximizes margin while moving inventory).</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Discount Ladder -->
+    <div class="bg-white rounded-lg shadow-sm border border-brand-beige p-8">
+        <h2 class="text-2xl font-semibold text-brand-slate mb-4">Discount Ladder</h2>
+        <p class="text-brand-gray mb-4">StockMind tests 5 fixed discount levels with estimated demand uplift:</p>
+        <div class="overflow-x-auto">
+            <table class="min-w-full">
+                <thead class="bg-brand-beige">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-sm font-semibold text-brand-slate">Discount</th>
+                        <th class="px-6 py-3 text-left text-sm font-semibold text-brand-slate">Expected Uplift</th>
+                        <th class="px-6 py-3 text-left text-sm font-semibold text-brand-slate">Use Case</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-brand-beige">
+                    <tr>
+                        <td class="px-6 py-4 text-sm font-medium text-brand-slate">0%</td>
+                        <td class="px-6 py-4 text-sm text-brand-gray">1.00x (baseline)</td>
+                        <td class="px-6 py-4 text-sm text-brand-gray">Healthy inventory, no action needed</td>
+                    </tr>
+                    <tr>
+                        <td class="px-6 py-4 text-sm font-medium text-brand-slate">5%</td>
+                        <td class="px-6 py-4 text-sm text-brand-gray">1.08x (+8%)</td>
+                        <td class="px-6 py-4 text-sm text-brand-gray">Gentle nudge for slow movers</td>
+                    </tr>
+                    <tr>
+                        <td class="px-6 py-4 text-sm font-medium text-brand-slate">10%</td>
+                        <td class="px-6 py-4 text-sm text-brand-gray">1.18x (+18%)</td>
+                        <td class="px-6 py-4 text-sm text-brand-gray">Moderate promotion for at-risk stock</td>
+                    </tr>
+                    <tr>
+                        <td class="px-6 py-4 text-sm font-medium text-brand-slate">15%</td>
+                        <td class="px-6 py-4 text-sm text-brand-gray">1.32x (+32%)</td>
+                        <td class="px-6 py-4 text-sm text-brand-gray">Aggressive clearance for aging inventory</td>
+                    </tr>
+                    <tr>
+                        <td class="px-6 py-4 text-sm font-medium text-brand-slate">20%</td>
+                        <td class="px-6 py-4 text-sm text-brand-gray">1.50x (+50%)</td>
+                        <td class="px-6 py-4 text-sm text-brand-gray">Maximum discount for urgent clearance</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Configurable Parameters -->
+    <div class="bg-white rounded-lg shadow-sm border border-brand-beige p-8">
+        <h2 class="text-2xl font-semibold text-brand-slate mb-4">Configurable Parameters</h2>
+        <p class="text-brand-gray mb-4">Tune the engine to match your business requirements:</p>
+
+        <div class="space-y-4">
+            <div class="border-l-4 border-brand-coral pl-4">
+                <h3 class="font-semibold text-brand-slate">Distress Threshold (default: 0.55)</h3>
+                <p class="text-sm text-brand-gray">Minimum distress score to consider for promotion. Higher = more selective.</p>
+            </div>
+
+            <div class="border-l-4 border-brand-coral pl-4">
+                <h3 class="font-semibold text-brand-slate">Minimum Margin (default: 0.15)</h3>
+                <p class="text-sm text-brand-gray">Minimum acceptable gross margin percentage. Prevents unprofitable discounts.</p>
+            </div>
+
+            <div class="border-l-4 border-brand-coral pl-4">
+                <h3 class="font-semibold text-brand-slate">Low Stock Threshold (default: 0.75)</h3>
+                <p class="text-sm text-brand-gray">Don't promote if inventory is below this multiple of baseline demand.</p>
+            </div>
+
+            <div class="border-l-4 border-brand-coral pl-4">
+                <h3 class="font-semibold text-brand-slate">Distress Weight Sliders</h3>
+                <p class="text-sm text-brand-gray">Adjust relative importance of each distress factor. Must sum to 1.0.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tech Stack -->
+    <div class="bg-white rounded-lg shadow-sm border border-brand-beige p-8">
+        <h2 class="text-2xl font-semibold text-brand-slate mb-4">Technology Stack</h2>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div class="text-center p-4 bg-brand-cream rounded-lg">
+                <div class="font-semibold text-brand-slate mb-1">FastAPI</div>
+                <div class="text-xs text-brand-gray">Web Framework</div>
+            </div>
+            <div class="text-center p-4 bg-brand-cream rounded-lg">
+                <div class="font-semibold text-brand-slate mb-1">HTMX</div>
+                <div class="text-xs text-brand-gray">Dynamic UI</div>
+            </div>
+            <div class="text-center p-4 bg-brand-cream rounded-lg">
+                <div class="font-semibold text-brand-slate mb-1">DuckDB</div>
+                <div class="text-xs text-brand-gray">Analytics Database</div>
+            </div>
+            <div class="text-center p-4 bg-brand-cream rounded-lg">
+                <div class="font-semibold text-brand-slate mb-1">Polars</div>
+                <div class="text-xs text-brand-gray">Data Processing</div>
+            </div>
+            <div class="text-center p-4 bg-brand-cream rounded-lg">
+                <div class="font-semibold text-brand-slate mb-1">Chart.js</div>
+                <div class="text-xs text-brand-gray">Visualizations</div>
+            </div>
+            <div class="text-center p-4 bg-brand-cream rounded-lg">
+                <div class="font-semibold text-brand-slate mb-1">Alpine.js</div>
+                <div class="text-xs text-brand-gray">Interactivity</div>
+            </div>
+            <div class="text-center p-4 bg-brand-cream rounded-lg">
+                <div class="font-semibold text-brand-slate mb-1">Tailwind CSS</div>
+                <div class="text-xs text-brand-gray">Styling</div>
+            </div>
+            <div class="text-center p-4 bg-brand-cream rounded-lg">
+                <div class="font-semibold text-brand-slate mb-1">Python 3.12</div>
+                <div class="text-xs text-brand-gray">Runtime</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Visual Flow Diagram -->
+    <div class="bg-white rounded-lg shadow-sm border border-brand-beige p-8">
+        <h2 class="text-2xl font-semibold text-brand-slate mb-6">Process Flow Diagram</h2>
+        <div class="flex flex-col items-center space-y-4">
+            <!-- Flow boxes -->
+            <div class="w-full max-w-md bg-brand-coral text-white p-4 rounded-lg text-center font-semibold">
+                Inventory Data
+            </div>
+            <div class="text-2xl text-brand-gray">↓</div>
+            <div class="w-full max-w-md bg-brand-beige p-4 rounded-lg text-center">
+                <div class="font-semibold text-brand-slate">Distress Scoring</div>
+                <div class="text-xs text-brand-gray mt-1">6 weighted factors</div>
+            </div>
+            <div class="text-2xl text-brand-gray">↓</div>
+            <div class="w-full max-w-md bg-brand-beige p-4 rounded-lg text-center">
+                <div class="font-semibold text-brand-slate">Baseline Forecast</div>
+                <div class="text-xs text-brand-gray mt-1">30-day demand estimate</div>
+            </div>
+            <div class="text-2xl text-brand-gray">↓</div>
+            <div class="w-full max-w-md bg-brand-beige p-4 rounded-lg text-center">
+                <div class="font-semibold text-brand-slate">Promotion Simulation</div>
+                <div class="text-xs text-brand-gray mt-1">Test 5 discount levels</div>
+            </div>
+            <div class="text-2xl text-brand-gray">↓</div>
+            <div class="w-full max-w-md bg-brand-beige p-4 rounded-lg text-center">
+                <div class="font-semibold text-brand-slate">Guard Rails</div>
+                <div class="text-xs text-brand-gray mt-1">Business rules validation</div>
+            </div>
+            <div class="text-2xl text-brand-gray">↓</div>
+            <div class="w-full max-w-md bg-brand-coral text-white p-4 rounded-lg text-center font-semibold">
+                Optimal Recommendation
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer Note -->
+    <div class="bg-brand-cream border-l-4 border-brand-coral p-6 rounded-lg">
+        <p class="text-sm text-brand-gray">
+            <strong class="text-brand-slate">Note:</strong> This is a proof-of-concept (POC) deployment optimized for a 1GB server.
+            The engine analyzes up to 200 SKUs per run. For production use with larger datasets,
+            consider upgrading to at least a 2GB server.
+        </p>
+    </div>
+</div>
+{% endblock %}
