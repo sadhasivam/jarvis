@@ -51,6 +51,55 @@
             opacity: 0;
             transition: opacity 200ms ease-out;
         }
+
+        /* Range slider styling */
+        input[type="range"] {
+            -webkit-appearance: none;
+            appearance: none;
+            background: transparent;
+            cursor: pointer;
+        }
+
+        /* Slider track */
+        input[type="range"]::-webkit-slider-runnable-track {
+            background: #e8e6dc;
+            height: 0.5rem;
+            border-radius: 0.5rem;
+        }
+
+        input[type="range"]::-moz-range-track {
+            background: #e8e6dc;
+            height: 0.5rem;
+            border-radius: 0.5rem;
+        }
+
+        /* Slider thumb */
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            margin-top: -4px;
+            background-color: #d97757;
+            height: 1rem;
+            width: 1rem;
+            border-radius: 50%;
+        }
+
+        input[type="range"]::-moz-range-thumb {
+            border: none;
+            background-color: #d97757;
+            height: 1rem;
+            width: 1rem;
+            border-radius: 50%;
+        }
+
+        /* Slider thumb on hover */
+        input[type="range"]::-webkit-slider-thumb:hover {
+            background-color: #c56847;
+        }
+
+        input[type="range"]::-moz-range-thumb:hover {
+            background-color: #c56847;
+        }
     </style>
 
     {% block extra_head %}{% endblock %}
