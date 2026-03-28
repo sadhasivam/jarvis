@@ -8,3 +8,9 @@ wheels/
 
 # Virtual environments
 .venv
+
+# Server logs and runtime files
+logs/
+*.log
+*.pid
+nohup.out

@@ -115,14 +115,20 @@ def tab_orders():
     try:
         df = ui_data.get_orders(limit=limit)
 
-        if status_filter != "All":
-            df = df.filter(pl.col("order_status") == status_filter)
+        if len(df) == 0:
+            st.warning("⚠️ No orders found in database. Check if data was loaded correctly.")
+            st.info("Run on server: `python -c \"import duckdb; print(duckdb.connect('jarvis.db').execute('SELECT COUNT(*) FROM orders').fetchone())\"`")
+        else:
+            if status_filter != "All":
+                df = df.filter(pl.col("order_status") == status_filter)
 
-        st.write(f"**Total Orders: {len(df)}**")
-        st.dataframe(df, width="stretch", height=500)
+            st.write(f"**Total Orders: {len(df)}**")
+            st.dataframe(df, width="stretch", height=500)
 
     except Exception as e:
-        st.error(f"Error loading orders: {e}")
+        st.error(f"❌ Error loading orders: {e}")
+        import traceback
+        st.code(traceback.format_exc())
 
 
 def tab_products():
@@ -144,8 +150,11 @@ def tab_products():
     try:
         df = ui_data.get_products(limit=limit, category=category_filter)
 
-        st.write(f"**Total Products: {len(df)}**")
-        st.dataframe(df, width="stretch", height=500)
+        if len(df) == 0:
+            st.warning("⚠️ No products found in database.")
+        else:
+            st.write(f"**Total Products: {len(df)}**")
+            st.dataframe(df, width="stretch", height=500)
 
         # Simple stats
         col1, col2, col3 = st.columns(3)
