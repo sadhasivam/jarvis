@@ -1,0 +1,29 @@
+[browser]
+gatherUsageStats = false
+
+[client]
+showErrorDetails = true
+
+[server]
+enableStaticServing = true
+
+[theme]
+# Clean Anthropic-inspired palette
+primaryColor = "#d97757"
+backgroundColor = "#faf9f0"
+secondaryBackgroundColor = "#e8e6dc"
+textColor = "#141413"
+font = "sans serif"
+
+# Alternative: Dark Mode
+# Uncomment [theme.dark] section below and comment out [theme] above
+# Then add base = "dark" to enable theme switcher
+
+# [theme.dark]
+# primaryColor = "#F59E0B"
+# backgroundColor = "#111827"
+# secondaryBackgroundColor = "#1F2937"
+# textColor = "#F9FAFB"
+# font = "sans serif"
+# baseRadius = "medium"
+# linkColor = "#F59E0B"
