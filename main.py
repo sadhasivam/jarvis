@@ -6,11 +6,11 @@ Inventory Markdown Recommendation Engine
 
 from fastapi import FastAPI, Request, Form, HTTPException
 from fastapi.responses import HTMLResponse
-from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 import duckdb
 import polars as pl
 import sys
+from pathlib import Path
 
 # Add src to path
 sys.path.insert(0, 'src')
@@ -22,8 +22,11 @@ from stockmind.engine import PromotionEngine
 # Initialize FastAPI
 app = FastAPI(title="StockMind", version="0.1.0")
 
-# Mount static files
-app.mount("/static", StaticFiles(directory="static"), name="static")
+# Mount static files only if directory exists and has files
+static_dir = Path("static")
+if static_dir.exists() and any(static_dir.rglob("*")):
+    from fastapi.staticfiles import StaticFiles
+    app.mount("/static", StaticFiles(directory="static"), name="static")
 
 # Templates - Disable cache for Python 3.14 compatibility
 # Create a no-op cache to avoid Python 3.14 dict hashing issues with Jinja2
