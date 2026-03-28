@@ -293,7 +293,10 @@ async def get_inventory(request: Request, limit: int = 50, offset: int = 0):
                 days_of_cover,
                 distress_score,
                 distress_category,
-                inventory_age_days
+                inventory_age_days,
+                is_returned,
+                return_condition,
+                return_processing_cost
             FROM inventory_snapshot
             ORDER BY distress_score DESC
             LIMIT ? OFFSET ?
@@ -389,8 +392,15 @@ async def run_promotion_analysis(
             "promo_10": sum(1 for r in results if r.get('recommended_discount_pct') == 0.10),
             "promo_15": sum(1 for r in results if r.get('recommended_discount_pct') == 0.15),
             "promo_20": sum(1 for r in results if r.get('recommended_discount_pct') == 0.20),
+            "promo_25": sum(1 for r in results if r.get('recommended_discount_pct') == 0.25),
+            "promo_30": sum(1 for r in results if r.get('recommended_discount_pct') == 0.30),
+            "promo_35": sum(1 for r in results if r.get('recommended_discount_pct') == 0.35),
             "expected_total_margin": sum(r.get('expected_margin', 0) for r in results),
             "expected_inventory_relief": sum(r.get('expected_units_with_action', 0) for r in results),
+            # Returns stats
+            "total_returns": sum(1 for r in results if r.get('is_returned')),
+            "returns_promoted": sum(1 for r in results if r.get('is_returned') and r.get('recommended_discount_pct', 0) > 0),
+            "new_promoted": sum(1 for r in results if not r.get('is_returned') and r.get('recommended_discount_pct', 0) > 0),
         }
 
         return templates.TemplateResponse(

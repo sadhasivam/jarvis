@@ -146,6 +146,53 @@ class InventorySynthesizer:
             pl.lit(seasonality_classes).alias("seasonality_class")
         ])
 
+        # Returns data - 15% of inventory are returned items
+        is_returned = np.random.choice([True, False], size=n, p=[0.15, 0.85])
+
+        # Return condition for returned items
+        return_conditions = []
+        for returned in is_returned:
+            if returned:
+                # 60% good condition, 30% opened, 10% damaged
+                condition = np.random.choice(
+                    ["good", "opened", "damaged"],
+                    p=[0.60, 0.30, 0.10]
+                )
+            else:
+                condition = "new"
+            return_conditions.append(condition)
+
+        # Return processing cost (sunk cost already incurred)
+        # Good: $2-5, Opened: $3-8, Damaged: $5-15
+        return_processing_costs = []
+        for condition in return_conditions:
+            if condition == "good":
+                cost = np.random.uniform(2, 5)
+            elif condition == "opened":
+                cost = np.random.uniform(3, 8)
+            elif condition == "damaged":
+                cost = np.random.uniform(5, 15)
+            else:
+                cost = 0.0
+            return_processing_costs.append(cost)
+
+        # Returned date (only for returned items, within last 90 days)
+        returned_dates = []
+        for returned in is_returned:
+            if returned:
+                days_ago = np.random.randint(1, 90)
+                date = (self.snapshot_date - timedelta(days=days_ago)).isoformat()
+            else:
+                date = None
+            returned_dates.append(date)
+
+        df = df.with_columns([
+            pl.Series("is_returned", is_returned),
+            pl.Series("return_condition", return_conditions),
+            pl.Series("return_processing_cost", return_processing_costs),
+            pl.Series("returned_date", returned_dates)
+        ])
+
         # Calculate days since last sale
         df = df.with_columns([
             pl.when(pl.col("last_sale_date").is_null())

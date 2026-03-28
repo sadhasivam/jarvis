@@ -99,6 +99,18 @@ try:
         FROM inventory_snapshot
     """).fetchone()
 
+    # Return stats
+    return_stats = conn.execute("""
+        SELECT
+            SUM(CASE WHEN is_returned = true THEN 1 ELSE 0 END) as returned_count,
+            SUM(CASE WHEN return_condition = 'good' THEN 1 ELSE 0 END) as good_returns,
+            SUM(CASE WHEN return_condition = 'opened' THEN 1 ELSE 0 END) as opened_returns,
+            SUM(CASE WHEN return_condition = 'damaged' THEN 1 ELSE 0 END) as damaged_returns,
+            ROUND(AVG(CASE WHEN is_returned = true THEN distress_score ELSE NULL END), 3) as avg_return_distress,
+            ROUND(AVG(CASE WHEN is_returned = false THEN distress_score ELSE NULL END), 3) as avg_new_distress
+        FROM inventory_snapshot
+    """).fetchone()
+
     print(f"""
     Total SKUs:           {stats[0]:,}
     Total Units:          {stats[1]:,}
@@ -108,6 +120,14 @@ try:
       - At Risk:          {stats[3]:,}
       - Watch:            {stats[4]:,}
       - Healthy:          {stats[5]:,}
+
+    Return Inventory:
+      - Total Returns:    {return_stats[0]:,} ({return_stats[0]/stats[0]*100:.1f}%)
+      - Good Condition:   {return_stats[1]:,}
+      - Opened:           {return_stats[2]:,}
+      - Damaged:          {return_stats[3]:,}
+      - Avg Distress (Returns): {return_stats[4]}
+      - Avg Distress (New):     {return_stats[5]}
 
     Averages:
       - Distress Score:   {stats[6]}
@@ -127,14 +147,16 @@ try:
             distress_category,
             on_hand_qty,
             days_since_last_sale,
-            ROUND(list_price, 2) as price
+            ROUND(list_price, 2) as price,
+            return_condition
         FROM inventory_snapshot
         ORDER BY distress_score DESC
         LIMIT 5
     """).fetchall()
 
     for i, row in enumerate(top_distressed, 1):
-        print(f"{i}. {row[0][:20]:20} | Score: {row[1]} | {row[2]:8} | Qty: {row[3]:4} | Days: {row[4]:3} | Price: R${row[5]}")
+        return_tag = f"[{row[6].upper()}]" if row[6] != "new" else ""
+        print(f"{i}. {row[0][:20]:20} {return_tag:10} | Score: {row[1]} | {row[2]:8} | Qty: {row[3]:4} | Days: {row[4]:3} | Price: R${row[5]}")
 
     print("\n" + "="*60)
     print("✅ SUCCESS! Inventory generation complete.")

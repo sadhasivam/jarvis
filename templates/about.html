@@ -124,10 +124,99 @@
         </div>
     </div>
 
+    <!-- Returns Feature -->
+    <div class="bg-white rounded-lg shadow-sm border border-brand-beige p-8">
+        <h2 class="text-2xl font-semibold text-brand-slate mb-4">🔄 Returns Management</h2>
+        <p class="text-brand-gray mb-4">
+            StockMind treats <strong>returned inventory as liability</strong> requiring urgent action.
+            The principle: <em>"No product back to attic"</em> — returns must move fast.
+        </p>
+
+        <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-4">
+            <h3 class="font-semibold text-brand-slate mb-2">⚠️ Return Economics</h3>
+            <ul class="list-disc list-inside text-sm text-brand-gray space-y-1">
+                <li><strong>Sunk Costs:</strong> Processing ($2-15/unit) already paid</li>
+                <li><strong>Lower Natural Demand:</strong> 30-90% reduced baseline (customer stigma)</li>
+                <li><strong>Higher Holding Risk:</strong> 2× leftover penalty vs. new items</li>
+                <li><strong>No Reverse Logistics:</strong> Can't return to warehouse</li>
+            </ul>
+        </div>
+
+        <h3 class="font-semibold text-brand-slate mb-3">Multi-Path Promotion Strategy</h3>
+        <div class="overflow-x-auto">
+            <table class="min-w-full">
+                <thead class="bg-brand-beige">
+                    <tr>
+                        <th class="px-4 py-3 text-left text-sm font-semibold text-brand-slate">Inventory Type</th>
+                        <th class="px-4 py-3 text-left text-sm font-semibold text-brand-slate">Distress Threshold</th>
+                        <th class="px-4 py-3 text-left text-sm font-semibold text-brand-slate">Discount Range</th>
+                        <th class="px-4 py-3 text-left text-sm font-semibold text-brand-slate">Strategy</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-brand-beige">
+                    <tr class="bg-green-50">
+                        <td class="px-4 py-3 text-sm font-medium">
+                            <span class="px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs">NEW</span>
+                        </td>
+                        <td class="px-4 py-3 text-sm text-brand-gray">0.55 (standard)</td>
+                        <td class="px-4 py-3 text-sm text-brand-gray">0%, 5%, 10%, 15%, 20%</td>
+                        <td class="px-4 py-3 text-sm text-brand-gray">Standard clearance</td>
+                    </tr>
+                    <tr class="bg-yellow-50">
+                        <td class="px-4 py-3 text-sm font-medium">
+                            <span class="px-2 py-1 bg-yellow-100 text-yellow-800 rounded-full text-xs">RETURN: GOOD</span>
+                        </td>
+                        <td class="px-4 py-3 text-sm text-brand-gray">0.45 (lower)</td>
+                        <td class="px-4 py-3 text-sm text-brand-gray">5%, 10%, 15%, 20%, 25%</td>
+                        <td class="px-4 py-3 text-sm text-brand-gray">Aggressive pricing</td>
+                    </tr>
+                    <tr class="bg-orange-50">
+                        <td class="px-4 py-3 text-sm font-medium">
+                            <span class="px-2 py-1 bg-orange-100 text-orange-800 rounded-full text-xs">RETURN: OPENED</span>
+                        </td>
+                        <td class="px-4 py-3 text-sm text-brand-gray">0.35 (aggressive)</td>
+                        <td class="px-4 py-3 text-sm text-brand-gray">10%, 15%, 20%, 25%, 30%</td>
+                        <td class="px-4 py-3 text-sm text-brand-gray">Fast clearance</td>
+                    </tr>
+                    <tr class="bg-red-50">
+                        <td class="px-4 py-3 text-sm font-medium">
+                            <span class="px-2 py-1 bg-red-100 text-red-800 rounded-full text-xs">RETURN: DAMAGED</span>
+                        </td>
+                        <td class="px-4 py-3 text-sm text-brand-gray">0.25 (urgent)</td>
+                        <td class="px-4 py-3 text-sm text-brand-gray">15%, 20%, 25%, 30%, 35%</td>
+                        <td class="px-4 py-3 text-sm text-brand-gray">Emergency clearance</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="mt-4 bg-brand-cream p-4 rounded-lg">
+            <h4 class="font-semibold text-brand-slate mb-2">📊 Typical Results</h4>
+            <div class="grid grid-cols-2 gap-4 text-sm">
+                <div>
+                    <div class="text-brand-gray">New Items:</div>
+                    <div class="font-medium text-brand-slate">~7% promotion rate</div>
+                </div>
+                <div>
+                    <div class="text-brand-gray">Returned Items:</div>
+                    <div class="font-medium text-red-600">100% promotion rate</div>
+                </div>
+                <div>
+                    <div class="text-brand-gray">Avg Discount (New):</div>
+                    <div class="font-medium text-brand-slate">1-5%</div>
+                </div>
+                <div>
+                    <div class="text-brand-gray">Avg Discount (Damaged):</div>
+                    <div class="font-medium text-red-600">15-25%</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Discount Ladder -->
     <div class="bg-white rounded-lg shadow-sm border border-brand-beige p-8">
-        <h2 class="text-2xl font-semibold text-brand-slate mb-4">Discount Ladder</h2>
-        <p class="text-brand-gray mb-4">StockMind tests 5 fixed discount levels with estimated demand uplift:</p>
+        <h2 class="text-2xl font-semibold text-brand-slate mb-4">Discount Ladder (New Items)</h2>
+        <p class="text-brand-gray mb-4">For new inventory, StockMind tests 5 fixed discount levels:</p>
         <div class="overflow-x-auto">
             <table class="min-w-full">
                 <thead class="bg-brand-beige">

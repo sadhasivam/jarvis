@@ -35,6 +35,21 @@ class DemandForecaster:
               .alias("baseline_units_30d")
         ])
 
+        # Adjust for returned items
+        # Returns have lower natural demand (stigma) but higher discount response
+        df = df.with_columns([
+            pl.when(pl.col("is_returned") == True)
+              .then(
+                  pl.when(pl.col("return_condition") == "damaged")
+                    .then(pl.col("baseline_units_30d") * 0.1)  # Very low natural demand
+                  .when(pl.col("return_condition") == "opened")
+                    .then(pl.col("baseline_units_30d") * 0.4)  # Reduced demand
+                  .otherwise(pl.col("baseline_units_30d") * 0.7)  # Moderate reduction
+              )
+              .otherwise(pl.col("baseline_units_30d"))
+              .alias("baseline_units_30d")
+        ])
+
         # Ensure minimum of 0.1 for division safety
         df = df.with_columns([
             pl.col("baseline_units_30d").clip(0.1, None).alias("baseline_units_30d")

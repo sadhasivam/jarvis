@@ -21,6 +21,39 @@
     </div>
 </div>
 
+<!-- Returns Summary -->
+{% if summary.total_returns > 0 %}
+<div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
+    <div class="flex items-center gap-2 mb-3">
+        <span class="text-2xl">🔄</span>
+        <h3 class="font-semibold text-brand-slate">Returns Summary</h3>
+    </div>
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+        <div>
+            <div class="text-brand-gray">Total Returns</div>
+            <div class="text-xl font-semibold text-brand-slate mt-1">{{ summary.total_returns }}</div>
+        </div>
+        <div>
+            <div class="text-brand-gray">Returns Promoted</div>
+            <div class="text-xl font-semibold text-red-600 mt-1">{{ summary.returns_promoted }}</div>
+            <div class="text-xs text-brand-gray">({{ "%.0f"|format(summary.returns_promoted / summary.total_returns * 100) if summary.total_returns > 0 else 0 }}%)</div>
+        </div>
+        <div>
+            <div class="text-brand-gray">New Items Promoted</div>
+            <div class="text-xl font-semibold text-green-600 mt-1">{{ summary.new_promoted }}</div>
+            <div class="text-xs text-brand-gray">({{ "%.0f"|format(summary.new_promoted / (summary.total_skus - summary.total_returns) * 100) if (summary.total_skus - summary.total_returns) > 0 else 0 }}%)</div>
+        </div>
+        <div>
+            <div class="text-brand-gray">Promo Rate Gap</div>
+            <div class="text-xl font-semibold text-brand-coral mt-1">
+                {{ "%.0f"|format((summary.returns_promoted / summary.total_returns * 100) - (summary.new_promoted / (summary.total_skus - summary.total_returns) * 100)) if summary.total_returns > 0 and (summary.total_skus - summary.total_returns) > 0 else 0 }}%
+            </div>
+            <div class="text-xs text-brand-gray">Returns vs. New</div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
 <!-- Charts Section -->
 <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
     <!-- Promotion Mix Chart -->
@@ -54,6 +87,9 @@
                         Product ID
                     </th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-brand-slate uppercase tracking-wider">
+                        Status
+                    </th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-brand-slate uppercase tracking-wider">
                         Distress
                     </th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-brand-slate uppercase tracking-wider">
@@ -79,6 +115,20 @@
                     <tr class="hover:bg-brand-cream transition">
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-brand-slate">
                             {{ rec.product_id[:20] }}...
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-xs">
+                            {% if rec.is_returned %}
+                                <span class="px-2 py-1 rounded-full font-medium
+                                    {% if rec.return_condition == 'damaged' %}bg-red-100 text-red-800
+                                    {% elif rec.return_condition == 'opened' %}bg-orange-100 text-orange-800
+                                    {% else %}bg-yellow-100 text-yellow-800{% endif %}">
+                                    {{ rec.return_condition.upper() }}
+                                </span>
+                            {% else %}
+                                <span class="px-2 py-1 rounded-full font-medium bg-green-100 text-green-800">
+                                    NEW
+                                </span>
+                            {% endif %}
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm">
                             <span class="font-medium
@@ -116,7 +166,7 @@
                     {% endfor %}
                 {% else %}
                     <tr>
-                        <td colspan="7" class="px-6 py-8 text-center text-brand-gray">
+                        <td colspan="8" class="px-6 py-8 text-center text-brand-gray">
                             No recommendations generated
                         </td>
                     </tr>
@@ -135,21 +185,27 @@
         new Chart(promoCtx, {
             type: 'doughnut',
             data: {
-                labels: ['0% Off', '5% Off', '10% Off', '15% Off', '20% Off'],
+                labels: ['0%', '5%', '10%', '15%', '20%', '25%', '30%', '35%'],
                 datasets: [{
                     data: [
                         {{ summary.promo_0 }},
                         {{ summary.promo_5 }},
                         {{ summary.promo_10 }},
                         {{ summary.promo_15 }},
-                        {{ summary.promo_20 }}
+                        {{ summary.promo_20 }},
+                        {{ summary.promo_25 }},
+                        {{ summary.promo_30 }},
+                        {{ summary.promo_35 }}
                     ],
                     backgroundColor: [
-                        '#87867f',
-                        '#d97757',
-                        '#ff9b7d',
-                        '#ffb89d',
-                        '#ffd4bd'
+                        '#87867f',  // 0%
+                        '#d97757',  // 5%
+                        '#ff9b7d',  // 10%
+                        '#ffb89d',  // 15%
+                        '#ffd4bd',  // 20%
+                        '#ffa07a',  // 25%
+                        '#ff6347',  // 30%
+                        '#dc143c'   // 35%
                     ],
                     borderWidth: 0
                 }]

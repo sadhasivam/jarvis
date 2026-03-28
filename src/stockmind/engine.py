@@ -8,10 +8,20 @@ class PromotionEngine:
     """
     Core engine for markdown recommendation
     Simulates discount ladder and selects optimal action
+
+    Supports multiple promotion paths based on inventory condition:
+    - New items: Standard ladder (0-20%)
+    - Returned (good): Aggressive ladder (5-25%)
+    - Returned (opened/damaged): Clearance ladder (15-35%)
     """
 
-    # Default promotion ladder
-    DISCOUNT_LADDER = [0.0, 0.05, 0.10, 0.15, 0.20]
+    # Promotion ladders by inventory type
+    LADDERS = {
+        "new": [0.0, 0.05, 0.10, 0.15, 0.20],
+        "returned_good": [0.05, 0.10, 0.15, 0.20, 0.25],
+        "returned_opened": [0.10, 0.15, 0.20, 0.25, 0.30],
+        "returned_damaged": [0.15, 0.20, 0.25, 0.30, 0.35],
+    }
 
     # Default uplift factors for each discount level
     DEFAULT_UPLIFT = {
@@ -20,6 +30,17 @@ class PromotionEngine:
         0.10: 1.18,
         0.15: 1.32,
         0.20: 1.50,
+        0.25: 1.75,
+        0.30: 2.05,
+        0.35: 2.40,
+    }
+
+    # Distress thresholds by inventory type
+    THRESHOLDS = {
+        "new": 0.55,           # Standard threshold
+        "returned_good": 0.45,     # Lower bar for good returns
+        "returned_opened": 0.35,   # Aggressive for opened
+        "returned_damaged": 0.25,  # Must clear damaged
     }
 
     def __init__(
@@ -77,14 +98,35 @@ class PromotionEngine:
         discount_sensitivity = sku["discount_sensitivity"]
         days_of_cover = sku.get("days_of_cover", 999)
 
+        # Return-related fields
+        is_returned = sku.get("is_returned", False)
+        return_condition = sku.get("return_condition", "new")
+        return_processing_cost = sku.get("return_processing_cost", 0.0)
+
+        # Select promotion path based on return status
+        if is_returned:
+            if return_condition == "damaged":
+                ladder_type = "returned_damaged"
+            elif return_condition == "opened":
+                ladder_type = "returned_opened"
+            else:  # good condition
+                ladder_type = "returned_good"
+        else:
+            ladder_type = "new"
+
+        # Get appropriate ladder and threshold
+        discount_ladder = self.LADDERS[ladder_type]
+        threshold = self.THRESHOLDS[ladder_type]
+
         # Apply business guard rails first
-        if distress_score < self.distress_threshold:
+        if distress_score < threshold:
             return self._create_recommendation(
                 product_id, 0.0, 0, sku,
-                reason="Below distress threshold"
+                reason=f"Below {ladder_type} distress threshold ({threshold})"
             )
 
-        if on_hand < baseline_demand * self.low_stock_threshold:
+        # For non-returned items, check stock levels
+        if not is_returned and on_hand < baseline_demand * self.low_stock_threshold:
             return self._create_recommendation(
                 product_id, 0.0, 0, sku,
                 reason="Low stock relative to demand"
@@ -95,7 +137,7 @@ class PromotionEngine:
         best_score = float('-inf')
         action_details = []
 
-        for discount_pct in self.DISCOUNT_LADDER:
+        for discount_pct in discount_ladder:
             # Check margin constraint
             discounted_price = list_price * (1 - discount_pct)
             margin_after_discount = (discounted_price - unit_cost) / discounted_price
@@ -112,7 +154,9 @@ class PromotionEngine:
                 unit_cost=unit_cost,
                 holding_cost_daily=holding_cost_daily,
                 decay_score=decay_score,
-                discount_sensitivity=discount_sensitivity
+                discount_sensitivity=discount_sensitivity,
+                is_returned=is_returned,
+                return_processing_cost=return_processing_cost
             )
 
             action_details.append({
@@ -148,7 +192,9 @@ class PromotionEngine:
         unit_cost: float,
         holding_cost_daily: float,
         decay_score: float,
-        discount_sensitivity: float
+        discount_sensitivity: float,
+        is_returned: bool = False,
+        return_processing_cost: float = 0.0
     ) -> dict:
         """Calculate economics for a specific discount action"""
 
@@ -156,7 +202,9 @@ class PromotionEngine:
         uplift = self.uplift_factors.get(discount_pct, 1.0)
 
         # Adjust uplift by SKU discount sensitivity
-        adjusted_uplift = 1.0 + (uplift - 1.0) * discount_sensitivity
+        # Returned items get extra boost (customers like deals on returns)
+        sensitivity_multiplier = 1.2 if is_returned else 1.0
+        adjusted_uplift = 1.0 + (uplift - 1.0) * discount_sensitivity * sensitivity_multiplier
 
         # Expected units sold
         expected_units = baseline_demand * adjusted_uplift
@@ -165,8 +213,13 @@ class PromotionEngine:
         # Discounted price
         discounted_price = list_price * (1 - discount_pct)
 
-        # Expected margin
-        expected_margin = (discounted_price - unit_cost) * units_sold
+        # Expected margin (for returns, deduct sunk processing cost)
+        gross_margin = (discounted_price - unit_cost) * units_sold
+        if is_returned:
+            # Return processing cost is sunk, but we recover some by selling
+            expected_margin = gross_margin - (return_processing_cost * on_hand)
+        else:
+            expected_margin = gross_margin
 
         # Holding cost avoided (assume 30 days)
         holding_cost_avoided = units_sold * holding_cost_daily * 30
@@ -175,9 +228,12 @@ class PromotionEngine:
         waste_penalty_per_unit = unit_cost * 0.5 * decay_score
         waste_avoided = units_sold * waste_penalty_per_unit
 
-        # Leftover penalty
+        # Leftover penalty (heavier for returns - no going back to attic!)
         leftover_units = max(on_hand - units_sold, 0)
         future_risk_cost = holding_cost_daily * 60 + waste_penalty_per_unit
+        if is_returned:
+            # Double penalty for returned items that don't sell
+            future_risk_cost *= 2.0
         leftover_penalty = leftover_units * future_risk_cost
 
         # Total action score
@@ -211,6 +267,9 @@ class PromotionEngine:
     ) -> dict:
         """Create recommendation record"""
 
+        is_returned = sku_data.get("is_returned", False)
+        return_condition = sku_data.get("return_condition", "new")
+
         rec = {
             "product_id": product_id,
             "distress_score": sku_data["distress_score"],
@@ -218,6 +277,8 @@ class PromotionEngine:
             "on_hand_qty": sku_data["on_hand_qty"],
             "days_since_last_sale": sku_data["days_since_last_sale"],
             "days_of_cover": sku_data.get("days_of_cover", 0),
+            "is_returned": is_returned,
+            "return_condition": return_condition,
             "recommended_discount_pct": discount_pct,
             "recommended_action": f"{int(discount_pct * 100)}% off" if discount_pct > 0 else "No action",
             "action_score": action_score,
@@ -245,6 +306,17 @@ class PromotionEngine:
         else:
             # Generate reason codes
             reasons = []
+
+            # Return-specific reasons (highest priority)
+            if is_returned:
+                if return_condition == "damaged":
+                    reasons.append("RETURN: damaged - must clear")
+                elif return_condition == "opened":
+                    reasons.append("RETURN: opened - no attic")
+                else:
+                    reasons.append("RETURN: good condition - liability")
+
+            # Standard distress reasons
             if sku_data.get("non_moving_score", 0) > 0.6:
                 reasons.append("non-moving")
             if sku_data.get("aging_score", 0) > 0.6:
