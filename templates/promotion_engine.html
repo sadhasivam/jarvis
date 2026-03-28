@@ -1,0 +1,133 @@
+{% extends "base.html" %}
+
+{% block title %}Promotion Engine - StockMind{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <!-- Header -->
+    <div class="flex justify-between items-center">
+        <h2 class="text-2xl font-semibold text-brand-slate">Promotion Engine</h2>
+        <div class="text-sm text-brand-gray">
+            Markdown recommendation analysis
+        </div>
+    </div>
+
+    <!-- Configuration Panel -->
+    <div class="bg-white rounded-lg shadow-sm border border-brand-beige p-6">
+        <h3 class="text-lg font-semibold text-brand-slate mb-4">Analysis Parameters</h3>
+
+        <form hx-post="/api/analyze"
+              hx-target="#results-container"
+              hx-indicator="#analyzing"
+              class="space-y-6">
+
+            <!-- Thresholds Section -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4" x-data="{ distress: 0.55, margin: 0.15, stock: 0.75 }">
+                <div>
+                    <label class="block text-sm font-medium text-brand-slate mb-1">
+                        Distress Threshold: <span class="text-brand-coral" x-text="distress.toFixed(2)"></span>
+                    </label>
+                    <input type="range" name="distress_threshold" x-model.number="distress" min="0" max="1" step="0.05"
+                           class="w-full h-2 bg-brand-beige rounded-lg appearance-none cursor-pointer accent-brand-coral">
+                    <p class="text-xs text-brand-gray mt-1">SKUs above this score get analyzed</p>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-brand-slate mb-1">
+                        Minimum Margin: <span class="text-brand-coral" x-text="margin.toFixed(2)"></span>
+                    </label>
+                    <input type="range" name="min_margin_pct" x-model.number="margin" min="0" max="1" step="0.05"
+                           class="w-full h-2 bg-brand-beige rounded-lg appearance-none cursor-pointer accent-brand-coral">
+                    <p class="text-xs text-brand-gray mt-1">Minimum acceptable margin %</p>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-brand-slate mb-1">
+                        Low Stock Threshold: <span class="text-brand-coral" x-text="stock.toFixed(2)"></span>
+                    </label>
+                    <input type="range" name="low_stock_threshold" x-model.number="stock" min="0" max="1" step="0.05"
+                           class="w-full h-2 bg-brand-beige rounded-lg appearance-none cursor-pointer accent-brand-coral">
+                    <p class="text-xs text-brand-gray mt-1">Don't promote if stock below this</p>
+                </div>
+            </div>
+
+            <!-- Distress Score Weights -->
+            <div x-data="{
+                w_non: 0.25, w_over: 0.20, w_age: 0.20,
+                w_dec: 0.15, w_stor: 0.10, w_dem: 0.10,
+                get total() { return this.w_non + this.w_over + this.w_age + this.w_dec + this.w_stor + this.w_dem; }
+            }">
+                <div class="flex justify-between items-center mb-3">
+                    <h4 class="text-sm font-semibold text-brand-slate">Distress Score Weights</h4>
+                    <span class="text-xs font-medium" :class="Math.abs(total - 1.0) < 0.01 ? 'text-green-600' : 'text-red-600'">
+                        Total: <span x-text="total.toFixed(2)"></span>
+                    </span>
+                </div>
+                <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+                    <div>
+                        <label class="block text-xs text-brand-gray mb-1">
+                            Non-Moving: <span class="font-medium text-brand-slate" x-text="w_non.toFixed(2)"></span>
+                        </label>
+                        <input type="range" name="w_non_moving" x-model.number="w_non" min="0" max="1" step="0.05"
+                               class="w-full h-2 bg-brand-beige rounded-lg appearance-none cursor-pointer accent-brand-coral">
+                    </div>
+                    <div>
+                        <label class="block text-xs text-brand-gray mb-1">
+                            Overstock: <span class="font-medium text-brand-slate" x-text="w_over.toFixed(2)"></span>
+                        </label>
+                        <input type="range" name="w_overstock" x-model.number="w_over" min="0" max="1" step="0.05"
+                               class="w-full h-2 bg-brand-beige rounded-lg appearance-none cursor-pointer accent-brand-coral">
+                    </div>
+                    <div>
+                        <label class="block text-xs text-brand-gray mb-1">
+                            Aging: <span class="font-medium text-brand-slate" x-text="w_age.toFixed(2)"></span>
+                        </label>
+                        <input type="range" name="w_aging" x-model.number="w_age" min="0" max="1" step="0.05"
+                               class="w-full h-2 bg-brand-beige rounded-lg appearance-none cursor-pointer accent-brand-coral">
+                    </div>
+                    <div>
+                        <label class="block text-xs text-brand-gray mb-1">
+                            Decay: <span class="font-medium text-brand-slate" x-text="w_dec.toFixed(2)"></span>
+                        </label>
+                        <input type="range" name="w_decay" x-model.number="w_dec" min="0" max="1" step="0.05"
+                               class="w-full h-2 bg-brand-beige rounded-lg appearance-none cursor-pointer accent-brand-coral">
+                    </div>
+                    <div>
+                        <label class="block text-xs text-brand-gray mb-1">
+                            Storage: <span class="font-medium text-brand-slate" x-text="w_stor.toFixed(2)"></span>
+                        </label>
+                        <input type="range" name="w_storage" x-model.number="w_stor" min="0" max="1" step="0.05"
+                               class="w-full h-2 bg-brand-beige rounded-lg appearance-none cursor-pointer accent-brand-coral">
+                    </div>
+                    <div>
+                        <label class="block text-xs text-brand-gray mb-1">
+                            Demand Weak: <span class="font-medium text-brand-slate" x-text="w_dem.toFixed(2)"></span>
+                        </label>
+                        <input type="range" name="w_demand_weak" x-model.number="w_dem" min="0" max="1" step="0.05"
+                               class="w-full h-2 bg-brand-beige rounded-lg appearance-none cursor-pointer accent-brand-coral">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Submit Button -->
+            <div class="flex justify-end">
+                <button type="submit"
+                        class="px-6 py-3 bg-brand-coral text-white rounded-lg font-medium hover:opacity-90 transition">
+                    Run Analysis
+                </button>
+            </div>
+
+            <!-- Analysis Indicator -->
+            <div id="analyzing" class="htmx-indicator text-center py-4">
+                <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-brand-coral"></div>
+                <p class="mt-2 text-brand-gray">Analyzing inventory...</p>
+            </div>
+        </form>
+    </div>
+
+    <!-- Results Container -->
+    <div id="results-container">
+        <!-- Results will be loaded here via HTMX -->
+    </div>
+</div>
+{% endblock %}

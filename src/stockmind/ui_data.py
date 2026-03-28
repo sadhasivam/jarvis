@@ -1,11 +1,11 @@
-"""Data preparation utilities for Streamlit UI"""
+"""Data preparation utilities for UI"""
 
 import duckdb
 import polars as pl
 
 
 class UIDataProvider:
-    """Provides data for Streamlit UI components"""
+    """Provides data for UI components"""
 
     def __init__(self, conn: duckdb.DuckDBPyConnection):
         self.conn = conn

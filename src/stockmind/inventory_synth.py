@@ -36,7 +36,7 @@ class InventorySynthesizer:
         LEFT JOIN orders o ON oi.order_id = o.order_id AND o.order_status = 'delivered'
         GROUP BY p.product_id, p.product_category_name, p.product_weight_g,
                  p.product_length_cm, p.product_height_cm, p.product_width_cm
-        LIMIT 5000
+        LIMIT 500
         """
         result = pl.read_database(combined_query, self.conn)
         print(f"  Loaded {len(result):,} products with sales data")

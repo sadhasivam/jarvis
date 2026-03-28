@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+{% block title %}Orders - StockMind{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <!-- Header -->
+    <div class="flex justify-between items-center">
+        <h2 class="text-2xl font-semibold text-brand-slate">Orders</h2>
+        <div class="text-sm text-brand-gray">
+            Showing recent orders
+        </div>
+    </div>
+
+    <!-- Orders Table Container -->
+    <div class="bg-white rounded-lg shadow-sm border border-brand-beige">
+        <div id="orders-container"
+             hx-get="/api/orders"
+             hx-trigger="load"
+             hx-indicator="#loading-orders">
+
+            <!-- Loading State -->
+            <div id="loading-orders" class="htmx-indicator p-8 text-center">
+                <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-brand-coral"></div>
+                <p class="mt-2 text-brand-gray">Loading orders...</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

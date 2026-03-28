@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Standalone script to generate synthetic inventory data
-Run this BEFORE starting the Streamlit app
+Run this BEFORE starting the FastAPI server
 
 Usage:
     python generate_inventory.py
@@ -17,7 +17,7 @@ from stockmind.forecast import DemandForecaster
 
 print("="*60)
 print("StockMind - Inventory Generation Script")
-print("Processing 5000 products (optimized for speed)")
+print("Processing 500 products (optimized for 1GB servers)")
 print("="*60)
 
 print("\n🔌 Connecting to database...")
@@ -139,8 +139,8 @@ try:
     print("\n" + "="*60)
     print("✅ SUCCESS! Inventory generation complete.")
     print("="*60)
-    print("\nYou can now start the Streamlit app:")
-    print("  ./run.sh")
+    print("\nYou can now start the FastAPI server:")
+    print("  ./run_server.sh")
     print()
 
 except Exception as e:

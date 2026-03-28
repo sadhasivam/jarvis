@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+{% block title %}Customers - StockMind{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <!-- Header -->
+    <div class="flex justify-between items-center">
+        <h2 class="text-2xl font-semibold text-brand-slate">Customers</h2>
+        <div class="text-sm text-brand-gray">
+            Customer insights and activity
+        </div>
+    </div>
+
+    <!-- Customers Table Container -->
+    <div class="bg-white rounded-lg shadow-sm border border-brand-beige">
+        <div id="customers-container"
+             hx-get="/api/customers"
+             hx-trigger="load"
+             hx-indicator="#loading-customers">
+
+            <!-- Loading State -->
+            <div id="loading-customers" class="htmx-indicator p-8 text-center">
+                <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-brand-coral"></div>
+                <p class="mt-2 text-brand-gray">Loading customers...</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

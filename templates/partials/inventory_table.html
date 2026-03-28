@@ -1,0 +1,119 @@
+<div class="overflow-x-auto">
+    <table class="min-w-full divide-y divide-brand-beige">
+        <thead class="bg-brand-beige">
+            <tr>
+                <th class="px-6 py-3 text-left text-xs font-medium text-brand-slate uppercase tracking-wider">
+                    Product ID
+                </th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-brand-slate uppercase tracking-wider">
+                    On Hand
+                </th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-brand-slate uppercase tracking-wider">
+                    Price
+                </th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-brand-slate uppercase tracking-wider">
+                    Days Since Sale
+                </th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-brand-slate uppercase tracking-wider">
+                    Days of Cover
+                </th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-brand-slate uppercase tracking-wider">
+                    Distress Score
+                </th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-brand-slate uppercase tracking-wider">
+                    Category
+                </th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-brand-slate uppercase tracking-wider">
+                    Actions
+                </th>
+            </tr>
+        </thead>
+        <tbody class="bg-white divide-y divide-brand-beige">
+            {% if inventory %}
+                {% for item in inventory %}
+                <tr class="hover:bg-brand-cream transition" id="row-{{ item.product_id }}">
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-brand-slate">
+                        {{ item.product_id[:20] }}...
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-brand-slate">
+                        {{ item.on_hand_qty }}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-brand-gray">
+                        R$ {{ "%.2f"|format(item.list_price) }}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-brand-gray">
+                        {{ item.days_since_last_sale or 'N/A' }}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-brand-gray">
+                        {{ "%.1f"|format(item.days_of_cover) if item.days_of_cover else 'N/A' }}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm">
+                        <span class="font-medium
+                            {% if item.distress_score > 0.75 %}text-red-600
+                            {% elif item.distress_score > 0.55 %}text-orange-600
+                            {% elif item.distress_score > 0.35 %}text-yellow-600
+                            {% else %}text-green-600{% endif %}">
+                            {{ "%.3f"|format(item.distress_score) }}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm">
+                        <span class="px-2 py-1 rounded-full text-xs font-medium
+                            {% if item.distress_category == 'urgent' %}bg-red-100 text-red-800
+                            {% elif item.distress_category == 'at_risk' %}bg-orange-100 text-orange-800
+                            {% elif item.distress_category == 'watch' %}bg-yellow-100 text-yellow-800
+                            {% else %}bg-green-100 text-green-800{% endif %}">
+                            {{ item.distress_category }}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm space-x-2">
+                        <button
+                            class="text-brand-coral hover:text-opacity-80 transition"
+                            onclick="editInventory('{{ item.product_id }}', {{ item.on_hand_qty }}, {{ item.list_price }})">
+                            Edit
+                        </button>
+                        <button
+                            class="text-red-600 hover:text-opacity-80 transition"
+                            hx-delete="/api/inventory/{{ item.product_id }}"
+                            hx-confirm="Delete this item?"
+                            hx-target="#row-{{ item.product_id }}"
+                            hx-swap="outerHTML">
+                            Delete
+                        </button>
+                    </td>
+                </tr>
+                {% endfor %}
+            {% else %}
+                <tr>
+                    <td colspan="8" class="px-6 py-8 text-center text-brand-gray">
+                        No inventory found
+                    </td>
+                </tr>
+            {% endif %}
+        </tbody>
+    </table>
+</div>
+
+<script>
+function editInventory(productId, qty, price) {
+    // Simple inline edit - can be enhanced with modal
+    const newQty = prompt('New quantity:', qty);
+    const newPrice = prompt('New price:', price);
+
+    if (newQty && newPrice) {
+        const formData = new FormData();
+        formData.append('product_id', productId);
+        formData.append('on_hand_qty', newQty);
+        formData.append('list_price', newPrice);
+
+        fetch('/api/inventory/update', {
+            method: 'POST',
+            body: formData
+        })
+        .then(() => {
+            showToast('Inventory updated');
+            htmx.trigger('#inventory-container', 'htmx:load');
+        })
+        .catch(err => showToast('Error: ' + err.message, 'error'));
+    }
+}
+</script>

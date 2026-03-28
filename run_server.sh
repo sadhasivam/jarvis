@@ -31,12 +31,8 @@ if ! python -c "import duckdb; conn = duckdb.connect('jarvis.db'); tables = [t[0
     exit 1
 fi
 
-# Start Streamlit in background with nohup
-nohup streamlit run app.py \
-    --server.address=0.0.0.0 \
-    --server.port=$PORT \
-    --server.headless=true \
-    > "$LOG_FILE" 2>&1 &
+# Start FastAPI (uvicorn) in background with nohup
+nohup uvicorn main:app --host 0.0.0.0 --port $PORT --log-level info > "$LOG_FILE" 2>&1 &
 
 # Save PID
 echo $! > "$PID_FILE"

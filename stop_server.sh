@@ -5,8 +5,8 @@ PID_FILE="logs/stockmind.pid"
 
 if [ ! -f "$PID_FILE" ]; then
     echo "⚠️  No PID file found. Server may not be running."
-    echo "   Killing any running Streamlit processes..."
-    pkill -f "streamlit run app.py"
+    echo "   Killing any running uvicorn processes..."
+    pkill -f "uvicorn main:app"
     exit 0
 fi
 

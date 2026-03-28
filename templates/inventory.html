@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+
+{% block title %}Inventory - StockMind{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <!-- Header -->
+    <div class="flex justify-between items-center">
+        <h2 class="text-2xl font-semibold text-brand-slate">Inventory Management</h2>
+        <div class="text-sm text-brand-gray">
+            Current stock levels and distress scores
+        </div>
+    </div>
+
+    <!-- Inventory Table Container -->
+    <div class="bg-white rounded-lg shadow-sm border border-brand-beige">
+        <div id="inventory-container"
+             hx-get="/api/inventory"
+             hx-trigger="load"
+             hx-indicator="#loading-inventory">
+
+            <!-- Loading State -->
+            <div id="loading-inventory" class="htmx-indicator p-8 text-center">
+                <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-brand-coral"></div>
+                <p class="mt-2 text-brand-gray">Loading inventory...</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pagination Controls -->
+    <div class="flex justify-center space-x-2">
+        <button
+            class="px-4 py-2 bg-white border border-brand-beige rounded hover:bg-brand-beige transition"
+            hx-get="/api/inventory?offset=0"
+            hx-target="#inventory-container">
+            First
+        </button>
+        <button
+            class="px-4 py-2 bg-white border border-brand-beige rounded hover:bg-brand-beige transition"
+            hx-get="/api/inventory?offset=50"
+            hx-target="#inventory-container">
+            Next 50
+        </button>
+    </div>
+</div>
+{% endblock %}
